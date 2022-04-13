@@ -9,7 +9,7 @@ export type InflowDynamoDB = {
     S: string;
   };
   people_entering: {
-    N: number;
+    N: string;
   };
   is_closed: {
     BOOL: boolean;

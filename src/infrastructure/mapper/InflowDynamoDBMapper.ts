@@ -6,7 +6,7 @@ export class InflowDynamoDBMapper {
     return {
       createdAt: inflowDynamoDB.created_at.S,
       id: inflowDynamoDB.id.S,
-      peopleEntering: inflowDynamoDB.people_entering.N,
+      peopleEntering: parseInt(inflowDynamoDB.people_entering.N),
       vaccineCenterId: inflowDynamoDB.vaccine_center_id.S,
       is_closed: inflowDynamoDB.is_closed.BOOL,
     };

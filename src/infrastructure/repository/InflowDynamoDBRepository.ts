@@ -33,8 +33,6 @@ export class InflowDynamoDBRepository implements IInflowRepository {
         })
         .promise()
     ).Items;
-
-    console.log(inflowsDynamoDB);
     const inflowStringfly = JSON.stringify(inflowsDynamoDB);
 
     return InflowDynamoDBMapper.toDomainsEntities(
