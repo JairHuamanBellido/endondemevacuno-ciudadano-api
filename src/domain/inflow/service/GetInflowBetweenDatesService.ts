@@ -35,7 +35,8 @@ export class GetInflowBetweenDatesService {
     } else if (period === 'week') {
       return this.getInflowPerWeek(inflows);
     }
-    return [];
+
+    return this.getInflowPerMonth(inflows, startDate);
   }
 
   private getInflowByHour(inflow: Inflow[], hour: string) {
@@ -101,6 +102,34 @@ export class GetInflowBetweenDatesService {
 
     return inflowPerDay;
   }
+
+  private getInflowPerMonth(inflow: Inflow[], startDate: string) {
+    const date = new Date(startDate);
+    const totalDaysInMonth = new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      0,
+    ).getDate();
+    const arr = Array.from(
+      { length: totalDaysInMonth },
+      (_, index) => index + 1,
+    );
+
+    const groupInflowByMonth = this.groupInflowByPeriod(inflow, 'month');
+
+    const inflowPerDate: InflowByTime[] = [];
+
+    arr.forEach((date) => {
+      if (groupInflowByMonth[date] === undefined) {
+        inflowPerDate.push({ [date]: 0 });
+      } else {
+        const average = this.getAverageInflows(groupInflowByMonth[date]);
+        inflowPerDate.push({ [date]: average });
+      }
+    });
+    return inflowPerDate;
+  }
+
   private getAverageInflows(inflows: Inflow[]): number {
     let average = 0;
 
@@ -120,7 +149,10 @@ export class GetInflowBetweenDatesService {
         timePeriod = new Date(e.createdAt).getUTCHours();
       } else if (period === 'week') {
         timePeriod = new Date(e.createdAt).getUTCDay();
+      } else if (period === 'month') {
+        timePeriod = new Date(e.createdAt).getUTCDate();
       }
+
       if (inflowByPeriod[timePeriod] === undefined) {
         inflowByPeriod[timePeriod] = [e];
       } else {
