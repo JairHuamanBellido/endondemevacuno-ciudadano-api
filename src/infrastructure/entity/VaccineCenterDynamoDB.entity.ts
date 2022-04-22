@@ -14,7 +14,7 @@ export type VaccineCenterDynamoDB = {
   business_hour: {
     S: string;
   };
-  distrito: {
+  district: {
     S: string;
   };
   localization: {

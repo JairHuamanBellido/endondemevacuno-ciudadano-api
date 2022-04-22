@@ -23,12 +23,4 @@ export class GetAllVaccinesService {
 
     return vaccinesByDisease;
   }
-
-  private groupBy(xs, key) {
-    return xs.reduce(function (rv, x) {
-      (rv[x[key]] = rv[x[key]] || []).push(x);
-      console.log(rv, x);
-      return rv;
-    }, {});
-  }
 }

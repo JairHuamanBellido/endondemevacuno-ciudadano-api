@@ -9,7 +9,7 @@ export class VaccineCenterDynamoDBMapper {
       businessHour: vaccineCenterDynamoDB.business_hour.S,
       direction: vaccineCenterDynamoDB.direction.S,
       diris: vaccineCenterDynamoDB.diris.S,
-      distrito: vaccineCenterDynamoDB.distrito.S,
+      district: vaccineCenterDynamoDB.district.S,
       id: vaccineCenterDynamoDB.id.S,
       localization: vaccineCenterDynamoDB.localization.S,
       name: vaccineCenterDynamoDB.name.S,

@@ -37,6 +37,6 @@ export class InflowDynamoDBRepository implements IInflowRepository {
 
     return InflowDynamoDBMapper.toDomainsEntities(
       JSON.parse(inflowStringfly) as InflowDynamoDB[],
-    );
+    ).sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
   }
 }

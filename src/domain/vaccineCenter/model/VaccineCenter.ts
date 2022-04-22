@@ -3,7 +3,7 @@ export interface VaccineCenter {
   businessHour: string;
   direction: string;
   diris: string;
-  distrito: string;
+  district: string;
   localization: string;
   name: string;
   vaccines: string[];

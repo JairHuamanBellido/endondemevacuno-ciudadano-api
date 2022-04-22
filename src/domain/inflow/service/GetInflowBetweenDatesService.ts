@@ -28,8 +28,7 @@ export class GetInflowBetweenDatesService {
     );
 
     if (period === 'hour') {
-      const hour = new Date(startDate).getUTCHours();
-      return this.getInflowByHour(inflows, hour.toString());
+      return this.getInflowByHour(inflows, startDate, endDate);
     } else if (period === 'day') {
       return this.getInflowByDay(inflows);
     } else if (period === 'week') {
@@ -39,21 +38,48 @@ export class GetInflowBetweenDatesService {
     return this.getInflowPerMonth(inflows, startDate);
   }
 
-  private getInflowByHour(inflow: Inflow[], hour: string) {
+  private getInflowByHour(
+    inflow: Inflow[],
+    startDate: string,
+    endDate: string,
+  ) {
     // It generates an array from 0 - 11
     const arr = Array.from({ length: 12 }, (_, index) => index);
 
-    // It generates an array with objects
-    // {`hour:minute`: value} -> [{'20:15': 21} {'20:20': 12}]
-    const generateTime = (_hour: string, index: number) => {
-      const hour = this.addZeroToLeft(_hour);
-      const minute = this.addZeroToLeft((index * 5).toString());
-      return `${hour}:${minute}`;
-    };
+    const roundToNearest5 = (x) => Math.round(x / 5) * 5;
 
-    return arr.map((v: number) => ({
-      [`${generateTime(hour, v)}`]: inflow[v] ? inflow[v].peopleEntering : 0,
-    }));
+    const startHour = new Date(startDate).getHours();
+    const endHour = new Date(endDate).getHours();
+    const startMinute = roundToNearest5(new Date(startDate).getMinutes());
+    const lastMinute = roundToNearest5(new Date(endDate).getMinutes()) - 5;
+
+    const groupInflowByMinutes = this.groupInflowByPeriod(inflow, 'hour');
+    let currentHour = startHour;
+    const inflowPerMinute: InflowByTime[] = [];
+
+    arr.forEach((e) => {
+      const minute = this.getAutocompleteMinutes(startMinute, e);
+      if (minute === 0 && lastMinute >= 0) {
+        currentHour = endHour;
+      }
+      const hourParsed = this.addZeroToLeft(currentHour.toString());
+      const minuteParsed = this.addZeroToLeft(minute.toString());
+      const time = `${hourParsed}:${minuteParsed}`;
+      if (groupInflowByMinutes[time] === undefined) {
+        inflowPerMinute.push({ [time]: 0 });
+      } else {
+        const average = this.getAverageInflows(groupInflowByMinutes[time]);
+        inflowPerMinute.push({ [time]: average });
+      }
+    });
+
+    return inflowPerMinute;
+  }
+
+  private getAutocompleteMinutes(startMinute: number, index: number) {
+    const minute = (startMinute + 5 * index) % 60;
+
+    return minute;
   }
 
   private getInflowByDay(inflow: Inflow[]) {
@@ -74,12 +100,6 @@ export class GetInflowBetweenDatesService {
     const groupInflowPerWeek = this.groupInflowByPeriod(inflow, 'week');
 
     const inflowPerDay: InflowByTime[] = [];
-
-    // Object.keys(groupInflowPerWeek).forEach((day) => {
-    //   const dayParsed = Days[day];
-    //   const average = this.getAverageInflows(groupInflowPerWeek[day]);
-    //   inflowPerDay.push({ [`${dayParsed}`]: average });
-    // });
 
     /**Autocomplete days with 0 value */
     arr.forEach((numberDay) => {
@@ -139,13 +159,20 @@ export class GetInflowBetweenDatesService {
 
     return Math.round(average / inflows.length);
   }
+  private addZeroToLeft = (value: string) => value.padStart(2, '0');
 
   private groupInflowByPeriod(inflow: Inflow[], period: Period) {
     const inflowByPeriod: { [key: string]: Inflow[] } = {};
 
     inflow.forEach((e) => {
       let timePeriod;
-      if (period === 'day') {
+      if (period === 'hour') {
+        timePeriod = `${new Date(
+          e.createdAt,
+        ).getUTCHours()}:${this.addZeroToLeft(
+          new Date(e.createdAt).getMinutes().toString(),
+        )}`;
+      } else if (period === 'day') {
         timePeriod = new Date(e.createdAt).getUTCHours();
       } else if (period === 'week') {
         timePeriod = new Date(e.createdAt).getUTCDay();
@@ -162,6 +189,4 @@ export class GetInflowBetweenDatesService {
 
     return inflowByPeriod;
   }
-
-  private addZeroToLeft = (value: string) => value.padStart(2, '0');
 }
