@@ -39,4 +39,29 @@ export class InflowDynamoDBRepository implements IInflowRepository {
       JSON.parse(inflowStringfly) as InflowDynamoDB[],
     ).sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
   }
+
+  public async getLastInflow(vaccineCenterId: string): Promise<Inflow> {
+    const inflowsDynamoDB = await (
+      await dynamoDB
+        .scan({
+          TableName: this.inflowTableAlias,
+          ScanFilter: {
+            vaccine_center_id: {
+              ComparisonOperator: 'EQ',
+              AttributeValueList: [{ S: vaccineCenterId }],
+            },
+            is_closed: {
+              ComparisonOperator: 'EQ',
+              AttributeValueList: [{ BOOL: true }],
+            },
+          },
+        })
+        .promise()
+    ).Items;
+    const inflowStringfly = JSON.stringify(inflowsDynamoDB);
+
+    return InflowDynamoDBMapper.toDomainsEntities(
+      JSON.parse(inflowStringfly) as InflowDynamoDB[],
+    ).sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt))[0];
+  }
 }

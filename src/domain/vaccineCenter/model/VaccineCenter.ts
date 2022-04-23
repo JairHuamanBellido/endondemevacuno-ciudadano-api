@@ -4,7 +4,9 @@ export interface VaccineCenter {
   direction: string;
   diris: string;
   district: string;
+  capacity: number;
   localization: string;
   name: string;
   vaccines: string[];
+  affluenceLevel?: string;
 }

@@ -11,6 +11,9 @@ export type VaccineCenterDynamoDB = {
   created_at: {
     N: string;
   };
+  capacity: {
+    S: string;
+  };
   business_hour: {
     S: string;
   };

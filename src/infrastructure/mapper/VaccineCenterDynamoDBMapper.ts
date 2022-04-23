@@ -14,6 +14,7 @@ export class VaccineCenterDynamoDBMapper {
       localization: vaccineCenterDynamoDB.localization.S,
       name: vaccineCenterDynamoDB.name.S,
       vaccines: vaccineCenterDynamoDB.vaccines.L.map((e) => e.S),
+      capacity: parseInt(vaccineCenterDynamoDB.capacity.S),
     };
   }
 

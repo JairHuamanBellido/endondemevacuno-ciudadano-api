@@ -6,4 +6,6 @@ export interface IInflowRepository {
     endDate: string,
     vaccineCenterId: string,
   ): Promise<Inflow[]>;
+
+  getLastInflow(vaccineCenterId: string): Promise<Inflow>;
 }
