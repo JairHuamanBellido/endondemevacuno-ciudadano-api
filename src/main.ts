@@ -8,6 +8,9 @@ async function bootstrap() {
   awsconfig.update({
     region: 'us-east-2',
   });
+
+  app.enableCors();
+
   await app.listen(5000);
 }
 bootstrap();
